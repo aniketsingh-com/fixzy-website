@@ -1,0 +1,1546 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Fixzy — Premium Air Conditioning Services</title>
+  
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            canvas: '#FFFFFF',
+            subcanvas: '#F5F5F7',
+            charcoal: '#111111',
+            mutedgray: '#6E6E73',
+            brandblue: '#0071E3', // Refined Arctic Blue
+            iceblue: '#EBF4FF',  // Premium Ice Blue highlight tint
+            bordercolor: 'rgba(0, 0, 0, 0.06)'
+          },
+          fontFamily: {
+            sans: ['-apple-system', 'BlinkMacSystemFont', '"Segoe UI"', 'Roboto', '"Helvetica Neue"', 'Arial', 'sans-serif'],
+          },
+          animation: {
+            'fade-in': 'fadeIn 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards',
+            'slide-up': 'slideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards',
+            'scale-up': 'scaleUp 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) forwards',
+          },
+          keyframes: {
+            fadeIn: {
+              '0%': { opacity: '0' },
+              '100%': { opacity: '1' },
+            },
+            slideUp: {
+              '0%': { transform: 'translateY(16px)', opacity: '0' },
+              '100%': { transform: 'translateY(0)', opacity: '1' },
+            },
+            scaleUp: {
+              '0%': { transform: 'scale(0.95)', opacity: '0' },
+              '100%': { transform: 'scale(1)', opacity: '1' },
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <style>
+    html {
+      scroll-behavior: smooth;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+    
+    ::selection {
+      background-color: rgba(0, 113, 227, 0.08);
+      color: #0071E3;
+    }
+
+    /* Minimal Custom Scrollbar */
+    ::-webkit-scrollbar {
+      width: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #F5F5F7;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #D2D2D7;
+      border-radius: 10px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #86868B;
+    }
+
+    .glass-nav {
+      background-color: rgba(255, 255, 255, 0.72);
+      backdrop-filter: blur(24px);
+      -webkit-backdrop-filter: blur(24px);
+    }
+
+    .fade-view {
+      transition: opacity 0.3s ease, transform 0.3s ease;
+    }
+
+    .premium-card-lift {
+      transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .premium-card-lift:hover {
+      transform: translateY(-6px);
+      box-shadow: 0 20px 30px rgba(0, 113, 227, 0.03);
+    }
+  </style>
+</head>
+<body class="bg-canvas text-charcoal font-sans overflow-x-hidden min-h-screen flex flex-col">
+
+  <!-- Floating Toast System -->
+  <div id="toast-wrapper" class="fixed top-24 left-1/2 -translate-x-1/2 z-[100] w-11/12 max-w-md hidden">
+    <div class="bg-charcoal text-white px-5 py-4 rounded-xl shadow-2xl flex items-center justify-between border border-white/10 backdrop-blur-md animate-scale-up">
+      <div class="flex items-center space-x-3">
+        <span class="w-2 h-2 rounded-full bg-brandblue animate-pulse"></span>
+        <p id="toast-text" class="text-xs font-medium tracking-tight"></p>
+      </div>
+      <button onclick="dismissToast()" class="text-white/60 hover:text-white transition-colors text-[10px] uppercase font-bold tracking-wider ml-4">
+        Dismiss
+      </button>
+    </div>
+  </div>
+
+  <!-- Sticky Frosted Header -->
+  <header class="sticky top-0 z-50 h-16 md:h-20 glass-nav border-b border-[rgba(0,0,0,0.06)] transition-all duration-300">
+    <div class="max-w-7xl mx-auto h-full px-4 md:px-8 flex items-center justify-between">
+      
+      <!-- Brand Logo and Left Side Elements -->
+      <div class="flex items-center space-x-3 md:space-x-8">
+        <!-- Universal Left Menu Button (Top Left on both mobile & desktop) -->
+        <button onclick="toggleLeftDrawer()" class="p-2 rounded-full hover:bg-subcanvas transition-colors duration-200 -ml-2" aria-label="Open Menu">
+          <i id="burger-icon" data-lucide="menu" class="w-6 h-6 text-charcoal"></i>
+        </button>
+
+        <a href="#" onclick="switchView('home')" class="flex items-baseline space-x-1">
+          <span class="text-xl md:text-2xl font-black tracking-tight text-charcoal">FIXZY</span>
+          <span class="w-1.5 h-1.5 rounded-full bg-brandblue"></span>
+        </a>
+      </div>
+
+      <!-- Center-Right: Pill-Shaped instant search bar -->
+      <div class="hidden md:flex flex-1 max-w-xs xl:max-w-md mx-6 relative">
+        <div class="relative w-full">
+          <div class="absolute inset-y-0 left-4 flex items-center pointer-events-none text-mutedgray">
+            <i data-lucide="search" class="w-4 h-4"></i>
+          </div>
+          <input
+            type="text"
+            id="desktop-search-input"
+            placeholder="Search care... (e.g., Gas, Foam)"
+            oninput="handleSearch(this.value)"
+            class="w-full bg-subcanvas hover:bg-[#EDEEEF] focus:bg-white text-xs text-charcoal rounded-full pl-11 pr-14 py-2.5 border border-[rgba(0,0,0,0.06)] focus:outline-none focus:ring-2 focus:ring-brandblue/5 transition-all duration-300"
+          />
+          <div class="absolute inset-y-0 right-4 flex items-center pointer-events-none">
+            <kbd class="hidden xl:inline-block bg-white text-[9px] font-mono text-mutedgray px-1.5 py-0.5 rounded border border-black/10 shadow-sm">⌘K</kbd>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right Side Elements -->
+      <div class="flex items-center space-x-2 md:space-x-4">
+        <!-- Localized indicators -->
+        <button onclick="toggleCityDropdown()" class="inline-flex items-center space-x-1 bg-subcanvas px-3 py-1.5 rounded-full border border-[rgba(0,0,0,0.06)] text-[10px] font-bold tracking-wider uppercase text-mutedgray hover:text-charcoal transition-colors">
+          <i data-lucide="map-pin" class="w-3.5 h-3.5 text-brandblue"></i>
+          <span id="current-location-label">Delhi NCR</span>
+          <i data-lucide="chevron-down" class="w-3 h-3 ml-0.5"></i>
+        </button>
+
+        <!-- City Dropdown Menu -->
+        <div id="city-dropdown" class="absolute top-16 right-36 bg-white border border-[rgba(0,0,0,0.06)] shadow-xl rounded-xl p-2 hidden flex-col w-44 z-50">
+          <button onclick="selectCity('Delhi NCR')" class="w-full text-left px-3 py-2 text-xs font-semibold rounded-lg hover:bg-subcanvas transition-colors">Delhi NCR Hub</button>
+          <button onclick="selectCity('Bangalore')" class="w-full text-left px-3 py-2 text-xs font-semibold rounded-lg hover:bg-subcanvas transition-colors">Bangalore Hub</button>
+        </div>
+
+        <!-- Sticky Cart Icon -->
+        <button onclick="switchView('cart')" class="relative p-2.5 rounded-full hover:bg-subcanvas transition-colors duration-200 focus:outline-none" aria-label="Open Cart">
+          <i data-lucide="shopping-bag" class="w-5 h-5 text-charcoal"></i>
+          <span id="cart-counter-badge" class="absolute top-0 right-0 bg-brandblue text-white text-[9px] font-bold w-4 h-4 rounded-full flex items-center justify-center border border-white spring-scale hidden">0</span>
+        </button>
+
+        <!-- Profile Hub Trigger Icon -->
+        <button onclick="toggleProfileDrawer()" class="relative p-1.5 rounded-full hover:bg-subcanvas transition-colors duration-200 focus:outline-none" aria-label="Open Profile Hub">
+          <img id="header-profile-pic" src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=120" class="w-7 h-7 rounded-full object-cover border border-brandblue/20" alt="Avatar">
+        </button>
+      </div>
+
+    </div>
+  </header>
+
+  <!-- Universal Left Navigation Slide-out Drawer -->
+  <div id="left-drawer-backdrop" onclick="toggleLeftDrawer(true)" class="fixed inset-0 bg-charcoal/30 backdrop-blur-xs z-50 hidden transition-opacity duration-300"></div>
+  <div id="left-drawer" class="fixed top-0 left-0 h-full w-full max-w-sm bg-white shadow-2xl z-50 transform -translate-x-full transition-transform duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] flex flex-col">
+    <div class="p-6 border-b border-[rgba(0,0,0,0.06)] flex items-center justify-between bg-white">
+      <div class="flex items-center space-x-2">
+        <span class="text-xl font-black tracking-tight text-charcoal">FIXZY</span>
+        <span class="w-1.5 h-1.5 rounded-full bg-brandblue"></span>
+      </div>
+      <button onclick="toggleLeftDrawer(true)" class="p-2 rounded-full hover:bg-subcanvas transition-colors">
+        <i data-lucide="x" class="w-5 h-5 text-mutedgray hover:text-charcoal"></i>
+      </button>
+    </div>
+
+    <!-- Scrollable Navigation Terminal Inside Left Drawer -->
+    <div class="flex-grow overflow-y-auto p-6 space-y-6">
+      <nav class="flex flex-col space-y-4 text-sm font-semibold uppercase tracking-wider text-mutedgray">
+        <button onclick="switchView('home'); toggleLeftDrawer(true)" class="text-left py-2 hover:text-charcoal transition-colors">Home</button>
+        <!-- Specialized About Us direct scroll route -->
+        <button onclick="switchView('home'); toggleLeftDrawer(true); setTimeout(() => scrollSection('home-about-section'), 120)" class="text-left py-2 hover:text-charcoal transition-colors text-brandblue font-bold">About Us</button>
+        <button onclick="switchView('services'); toggleLeftDrawer(true)" class="text-left py-2 hover:text-charcoal transition-colors">Our Services</button>
+        <button onclick="switchView('booking'); toggleLeftDrawer(true)" class="text-left py-2 hover:text-charcoal transition-colors">Booking Dashboard</button>
+        <button onclick="switchView('cart'); toggleLeftDrawer(true)" class="text-left py-2 hover:text-charcoal transition-colors">Cart Summary</button>
+        <button onclick="switchView('contact'); toggleLeftDrawer(true)" class="text-left py-2 hover:text-charcoal transition-colors">Contact Corporate</button>
+      </nav>
+
+      <div class="border-t border-[rgba(0,0,0,0.06)] pt-6 space-y-4">
+        <h4 class="text-[10px] font-black tracking-widest text-mutedgray uppercase">Zone Calibration</h4>
+        <div class="grid grid-cols-2 gap-2">
+          <button onclick="selectCity('Delhi NCR'); toggleLeftDrawer(true)" class="py-2.5 text-center text-[10px] font-bold uppercase rounded-lg bg-subcanvas hover:bg-zinc-200 transition-colors">Delhi NCR</button>
+          <button onclick="selectCity('Bangalore'); toggleLeftDrawer(true)" class="py-2.5 text-center text-[10px] font-bold uppercase rounded-lg bg-subcanvas hover:bg-zinc-200 transition-colors">Bangalore</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="p-6 border-t border-[rgba(0,0,0,0.06)] bg-subcanvas">
+      <p class="text-[10px] text-mutedgray">Client Air Support coordinates are monitored securely.</p>
+    </div>
+  </div>
+
+  <!-- Profile & Custom Appointments Slide-out Drawer (Right Side) -->
+  <div id="profile-drawer-backdrop" onclick="toggleProfileDrawer()" class="fixed inset-0 bg-charcoal/30 backdrop-blur-xs z-50 hidden transition-opacity duration-300"></div>
+  <div id="profile-drawer" class="fixed top-0 right-0 h-full w-full max-w-md bg-white shadow-2xl z-50 transform translate-x-full transition-transform duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] flex flex-col">
+    <!-- Drawer Header -->
+    <div class="p-6 border-b border-[rgba(0,0,0,0.06)] flex items-center justify-between">
+      <div class="flex items-center space-x-2">
+        <i data-lucide="user" class="w-5 h-5 text-brandblue"></i>
+        <span class="font-black text-sm uppercase tracking-wider text-charcoal">Profile & Hub Management</span>
+      </div>
+      <button onclick="toggleProfileDrawer()" class="p-1 rounded-full hover:bg-subcanvas transition-colors">
+        <i data-lucide="x" class="w-5 h-5 text-mutedgray hover:text-charcoal"></i>
+      </button>
+    </div>
+
+    <!-- Drawer Content (Scrollable) -->
+    <div class="flex-grow overflow-y-auto p-6 space-y-8">
+      
+      <!-- Editable Avatar Selection Block -->
+      <div class="flex flex-col items-center space-y-4 text-center">
+        <div class="relative group">
+          <img id="drawer-avatar-preview" src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=200" class="w-24 h-24 rounded-full object-cover border-2 border-brandblue shadow-md" alt="Avatar Preview">
+          <label class="absolute bottom-0 right-0 bg-brandblue text-white p-1.5 rounded-full cursor-pointer shadow-md hover:bg-blue-600 transition-colors">
+            <i data-lucide="camera" class="w-3.5 h-3.5"></i>
+            <input type="file" id="avatar-file-input" onchange="handleAvatarUpload(event)" class="hidden" accept="image/*">
+          </label>
+        </div>
+        <div>
+          <h4 id="drawer-user-name" class="font-black text-lg text-charcoal">Johnathan Doe</h4>
+          <p id="drawer-user-email" class="text-xs text-mutedgray">john.doe@icloud.com</p>
+        </div>
+      </div>
+
+      <!-- Editable User Details Form -->
+      <div class="space-y-4">
+        <h5 class="text-[10px] font-black tracking-widest text-mutedgray uppercase pb-1 border-b border-[rgba(0,0,0,0.06)]">Configure Account Settings</h5>
+        
+        <div>
+          <label class="block text-[9px] font-black tracking-wider text-mutedgray uppercase mb-1">Display Name</label>
+          <input type="text" id="profile-input-name" value="Johnathan Doe" class="w-full bg-subcanvas border border-[rgba(0,0,0,0.06)] text-xs rounded-xl px-3 py-2.5 focus:outline-none focus:ring-1 focus:ring-brandblue" oninput="syncProfileFromInputs()">
+        </div>
+
+        <div>
+          <label class="block text-[9px] font-black tracking-wider text-mutedgray uppercase mb-1">Email Address</label>
+          <input type="email" id="profile-input-email" value="john.doe@icloud.com" class="w-full bg-subcanvas border border-[rgba(0,0,0,0.06)] text-xs rounded-xl px-3 py-2.5 focus:outline-none focus:ring-1 focus:ring-brandblue" oninput="syncProfileFromInputs()">
+        </div>
+
+        <div>
+          <label class="block text-[9px] font-black tracking-wider text-mutedgray uppercase mb-1">Contact Phone</label>
+          <input type="tel" id="profile-input-phone" value="+91 99999 99999" class="w-full bg-subcanvas border border-[rgba(0,0,0,0.06)] text-xs rounded-xl px-3 py-2.5 focus:outline-none focus:ring-1 focus:ring-brandblue" oninput="syncProfileFromInputs()">
+        </div>
+
+        <div>
+          <label class="block text-[9px] font-black tracking-wider text-mutedgray uppercase mb-1">Primary Deployment Address</label>
+          <textarea id="profile-input-address" rows="2" class="w-full bg-subcanvas border border-[rgba(0,0,0,0.06)] text-xs rounded-xl px-3 py-2.5 focus:outline-none focus:ring-1 focus:ring-brandblue resize-none" oninput="syncProfileFromInputs()">140, Chanakyapuri Diplomatic Enclave, New Delhi - 110021</textarea>
+        </div>
+        
+        <button onclick="saveProfileChanges()" class="w-full bg-brandblue hover:bg-blue-600 text-white text-xs font-black py-3 rounded-xl uppercase tracking-wider transition-colors">Save Hub Profile Settings</button>
+      </div>
+
+      <!-- Live Scheduled Bookings / Progress Dashboard -->
+      <div class="space-y-4">
+        <h5 class="text-[10px] font-black tracking-widest text-mutedgray uppercase pb-1 border-b border-[rgba(0,0,0,0.06)]">Active Cooling Allocations</h5>
+        <div id="profile-bookings-list" class="space-y-3">
+          <!-- Dynamically Injected from state -->
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <main class="flex-grow">
+    
+    <!-- SECTION 1: HOME VIEW (Integrated Landing View) -->
+    <section id="view-home" class="fade-view">
+      <!-- Cinematic Hero Section -->
+      <div class="relative overflow-hidden bg-white pt-10 pb-16 md:py-20 lg:py-28 border-b border-[rgba(0,0,0,0.03)]">
+        <div class="absolute top-0 right-0 w-1/3 h-full opacity-[0.02] pointer-events-none">
+          <svg width="100%" height="100%" viewBox="0 0 100 100" preserveAspectRatio="none" class="text-charcoal fill-current">
+            <path d="M0,0 L100,0 L100,100 Z" />
+          </svg>
+        </div>
+
+        <div class="max-w-7xl mx-auto px-4 md:px-8 relative z-10">
+          <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-8 items-center">
+            
+            <!-- Left Info column -->
+            <div class="lg:col-span-7 space-y-6 md:space-y-8 animate-fade-in">
+              <span class="inline-flex items-center px-3 py-1 rounded-full bg-subcanvas text-[10px] font-bold tracking-[0.18em] text-charcoal uppercase border border-[rgba(0,0,0,0.06)]">
+                <span class="w-1.5 h-1.5 rounded-full bg-brandblue mr-2 animate-ping"></span>
+                AIR, REFINED IN <span class="current-city-text ml-1">Delhi NCR</span>
+              </span>
+
+              <h1 class="text-4xl sm:text-5xl lg:text-6xl font-black tracking-tight text-charcoal leading-[1.1]">
+                Apple-Grade Cooling Services <br class="hidden sm:inline" />
+                <span class="text-transparent bg-clip-text bg-gradient-to-r from-charcoal via-mutedgray to-brandblue">
+                  for Homes and Workspaces.
+                </span>
+              </h1>
+
+              <p class="text-base sm:text-lg text-mutedgray leading-relaxed max-w-xl">
+                Fixzy focuses exclusively on premium air conditioning engineering. We combine certified technical specialists with clear, upfront pricing across Delhi NCR and Bangalore.
+              </p>
+
+              <!-- Dynamic Location Selector Toggle -->
+              <div class="space-y-3">
+                <label class="text-[10px] font-bold tracking-[0.12em] text-mutedgray uppercase block">SELECT DEPLOYMENT ZONE</label>
+                <div class="inline-flex items-center bg-subcanvas p-1 rounded-full border border-[rgba(0,0,0,0.06)] relative h-11">
+                  <div class="relative flex items-center w-64">
+                    <button onclick="selectCity('Delhi NCR')" id="hero-toggle-delhi" class="relative z-10 w-1/2 text-center text-xs font-bold uppercase tracking-wider rounded-full transition-colors duration-300 py-1.5 text-charcoal">Delhi NCR</button>
+                    <button onclick="selectCity('Bangalore')" id="hero-toggle-blr" class="relative z-10 w-1/2 text-center text-xs font-bold uppercase tracking-wider rounded-full transition-colors duration-300 py-1.5 text-mutedgray">Bangalore</button>
+                    <span id="slider-back" class="absolute top-0 bottom-0 left-0 w-1/2 bg-white rounded-full shadow-sm transition-transform duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] h-full"></span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Action buttons -->
+              <div class="flex flex-col sm:flex-row items-stretch sm:items-center space-y-3 sm:space-y-0 sm:space-x-4 pt-2">
+                <button onclick="switchView('services')" class="bg-charcoal text-white hover:bg-[#222222] transition-all px-8 py-4 rounded-xl text-xs font-bold tracking-wider uppercase text-center shadow-lg hover:shadow-xl shadow-charcoal/10">Explore Catalog</button>
+                <button onclick="scrollSection('home-about-section')" class="px-8 py-4 rounded-xl text-xs font-bold tracking-wider uppercase text-charcoal hover:bg-subcanvas transition-colors text-center border border-[rgba(0,0,0,0.06)]">Our Rigor</button>
+              </div>
+            </div>
+
+            <!-- Right graphic placeholder -->
+            <div class="lg:col-span-5 relative flex justify-center animate-slide-up">
+              <div class="relative w-full max-w-md aspect-[4/5] bg-subcanvas rounded-2xl overflow-hidden border border-[rgba(0,0,0,0.06)] p-6 flex flex-col justify-between shadow-md">
+                
+                <div class="flex items-center justify-between">
+                  <div class="flex items-center space-x-2 bg-white/80 backdrop-blur px-3 py-1.5 rounded-full text-[10px] font-bold border border-[rgba(0,0,0,0.04)]">
+                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                    <span class="text-charcoal uppercase tracking-wider">Operational Grid</span>
+                  </div>
+                  <div class="w-8 h-8 rounded-full bg-white flex items-center justify-center border border-[rgba(0,0,0,0.06)]">
+                    <i data-lucide="shield-check" class="w-4 h-4 text-brandblue"></i>
+                  </div>
+                </div>
+
+                <!-- Central representation for premium AC filter -->
+                <div class="my-auto space-y-6 py-4 text-center">
+                  <div class="w-24 h-24 mx-auto rounded-full bg-white flex items-center justify-center shadow-sm border border-[rgba(0,0,0,0.03)] relative">
+                    <i data-lucide="wind" class="w-10 h-10 text-charcoal animate-pulse"></i>
+                    <span class="absolute -bottom-1 -right-1 bg-brandblue text-white py-0.5 px-1.5 rounded-full text-[8px] font-black">PRO</span>
+                  </div>
+                  
+                  <div class="space-y-2">
+                    <p class="text-[10px] font-black tracking-widest text-mutedgray uppercase">THE FIXZY STANDARD</p>
+                    <h4 class="text-lg font-black tracking-tight text-charcoal">Pure, Pressurized Clean Air</h4>
+                    <p class="text-xs text-mutedgray max-w-xs mx-auto">Providing medical-grade filtration chemical rinses to protect and restore residential thermal comfort.</p>
+                  </div>
+                </div>
+
+                <!-- Footer micro metrics inside card -->
+                <div class="bg-white p-4 rounded-xl border border-[rgba(0,0,0,0.04)] space-y-2">
+                  <div class="flex justify-between text-[10px] font-semibold text-mutedgray uppercase">
+                    <span>Average Dispatch Window</span>
+                    <span class="text-charcoal font-black">Within 45 Mins</span>
+                  </div>
+                  <div class="w-full bg-subcanvas h-1.5 rounded-full overflow-hidden">
+                    <div class="bg-charcoal h-full w-[85%] rounded-full animate-pulse"></div>
+                  </div>
+                </div>
+
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+
+      <!-- Standard Highlights section -->
+      <div class="bg-subcanvas py-12 border-b border-[rgba(0,0,0,0.04)]">
+        <div class="max-w-7xl mx-auto px-4 md:px-8 grid grid-cols-1 md:grid-cols-3 gap-8">
+          <div class="flex items-start space-x-4">
+            <div class="p-3 bg-white rounded-xl border border-[rgba(0,0,0,0.06)]">
+              <i data-lucide="shield" class="w-5 h-5 text-brandblue"></i>
+            </div>
+            <div>
+              <h4 class="font-bold text-sm text-charcoal uppercase tracking-wider">Zero-Leak Guarantee</h4>
+              <p class="text-xs text-mutedgray mt-1">If cooling quality declines within 30 days of service, we will rectify it completely free of charge.</p>
+            </div>
+          </div>
+
+          <div class="flex items-start space-x-4">
+            <div class="p-3 bg-white rounded-xl border border-[rgba(0,0,0,0.06)]">
+              <i data-lucide="user-check" class="w-5 h-5 text-brandblue"></i>
+            </div>
+            <div>
+              <h4 class="font-bold text-sm text-charcoal uppercase tracking-wider">Certified Technicians Only</h4>
+              <p class="text-xs text-mutedgray mt-1">Our responding specialists pass extensive backgrounds and rigorous modular cooling assessments.</p>
+            </div>
+          </div>
+
+          <div class="flex items-start space-x-4">
+            <div class="p-3 bg-white rounded-xl border border-[rgba(0,0,0,0.06)]">
+              <i data-lucide="calculator" class="w-5 h-5 text-brandblue"></i>
+            </div>
+            <div>
+              <h4 class="font-bold text-sm text-charcoal uppercase tracking-wider">No Hidden Upcharges</h4>
+              <p class="text-xs text-mutedgray mt-1">Transparent digital platform pricing. CGST, SGST, and safety fees are calculated clearly.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- SECTION: ABOUT US (Placed directly after home) -->
+      <div id="home-about-section" class="py-16 md:py-24 max-w-7xl mx-auto px-4 md:px-8 space-y-12">
+        <div class="max-w-3xl space-y-3">
+          <span class="text-[10px] font-black tracking-[0.2em] text-mutedgray uppercase">ABOUT FIXZY</span>
+          <h2 class="text-3xl md:text-4xl font-black tracking-tight text-charcoal">The Premium Standard in HVAC Care</h2>
+          <p class="text-sm md:text-base text-mutedgray leading-relaxed">Fixzy was established as an antidote to sub-standard marketplace service agencies. We dedicate our specialized mechanics exclusively to modern premium air conditioner engineering.</p>
+        </div>
+
+        <!-- Core philosophy grid -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
+          <div class="space-y-6">
+            <div class="space-y-2">
+              <h3 class="font-bold text-lg text-charcoal">Engineering vs. Quick Fixes</h3>
+              <p class="text-xs text-mutedgray leading-relaxed">Most domestic service platforms treat air conditioning as a simple mechanical commodity. At Fixzy, we view it as vital workspace and home environmental infrastructure requiring clean calibration, micro-leak acoustics, and proper thermal audits.</p>
+            </div>
+
+            <div class="space-y-2">
+              <h3 class="font-bold text-lg text-charcoal flex items-center space-x-2">
+                <span>Pure-Foam Eco-Chemical Cleaning</span>
+                <span class="bg-iceblue text-brandblue text-[9px] px-2 py-0.5 rounded font-bold uppercase">Eco-Certified</span>
+              </h3>
+              <p class="text-xs text-mutedgray leading-relaxed">We refuse to use harsh corrosives that degrade internal aluminum heat exchanging fins. Our customized, non-toxic pressurized jet foams lift deeply embedded particulate while keeping structural components pristine.</p>
+            </div>
+          </div>
+
+          <!-- Picture checklist section -->
+          <div class="bg-subcanvas rounded-2xl p-8 border border-[rgba(0,0,0,0.06)] space-y-4">
+            <h4 class="text-[10px] font-black tracking-widest text-mutedgray uppercase">Technician Training Checklist</h4>
+            <ul class="space-y-2 text-xs text-mutedgray">
+              <li class="flex items-center space-x-2">
+                <span class="w-1.5 h-1.5 bg-brandblue rounded-full"></span>
+                <span>Minimum 4 years certified engineering field experience</span>
+              </li>
+              <li class="flex items-center space-x-2">
+                <span class="w-1.5 h-1.5 bg-brandblue rounded-full"></span>
+                <span>Advanced thermodynamic flow calibration training</span>
+              </li>
+              <li class="flex items-center space-x-2">
+                <span class="w-1.5 h-1.5 bg-brandblue rounded-full"></span>
+                <span>Certified in R32/R410 green gas management</span>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SECTION 2: SERVICES CATALOG -->
+    <section id="view-services" class="fade-view py-16 md:py-24 max-w-7xl mx-auto px-4 md:px-8 space-y-12 hidden">
+      <div class="max-w-3xl space-y-4">
+        <span class="text-[10px] font-black tracking-[0.2em] text-mutedgray uppercase">CERTIFIED PORTFOLIO</span>
+        <h2 class="text-3xl md:text-4xl font-black tracking-tight text-charcoal">Available Services in <span class="current-city-text text-brandblue">Delhi NCR</span></h2>
+        <p class="text-sm md:text-base text-mutedgray leading-relaxed">Select any cooling maintenance or deployment program. Fully transparent rates, specialized sanitizing solutions, and zero logistics friction.</p>
+      </div>
+
+      <!-- Search Status Banner -->
+      <div id="search-status-banner" class="hidden bg-subcanvas p-4 rounded-xl flex items-center justify-between text-xs">
+        <span class="text-mutedgray">Filtered results matching your query.</span>
+        <button onclick="clearSearch()" class="text-charcoal font-bold hover:underline">Reset Search</button>
+      </div>
+
+      <!-- Service items listing -->
+      <div id="service-items-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <!-- Dynamically populated via script -->
+      </div>
+    </section>
+
+    <!-- SECTION 3: BOOKING & DIAGNOSTICS -->
+    <section id="view-booking" class="fade-view py-16 md:py-24 max-w-7xl mx-auto px-4 md:px-8 space-y-12 hidden">
+      <div class="max-w-3xl space-y-3">
+        <span class="text-[10px] font-black tracking-[0.2em] text-mutedgray uppercase">SECURE DISPATCH</span>
+        <h2 class="text-3xl md:text-4xl font-black tracking-tight text-charcoal">Your Schedule & Active Deployments</h2>
+        <p class="text-sm text-mutedgray">Configure your exact technical service parameters, submit requests, and trace diagnostic logs on your active schedule dashboard.</p>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start">
+        
+        <!-- Booking form setup (Left Column) -->
+        <div class="lg:col-span-7 bg-white p-6 md:p-8 rounded-2xl border border-[rgba(0,0,0,0.06)] space-y-6 shadow-sm">
+          <h3 class="font-bold text-sm text-charcoal uppercase tracking-wider pb-3 border-b border-[rgba(0,0,0,0.06)]">1. Location & Scheduling Details</h3>
+          
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <label class="block text-[10px] font-bold text-mutedgray uppercase tracking-wider mb-2">Deploying City Hub</label>
+              <select id="booking-city" class="w-full bg-subcanvas border border-[rgba(0,0,0,0.06)] text-xs rounded-xl p-3 focus:outline-none" onchange="syncBookingCity(this.value)">
+                <option value="Delhi NCR">Delhi NCR Hub</option>
+                <option value="Bangalore">Bangalore Hub</option>
+              </select>
+            </div>
+
+            <div>
+              <label class="block text-[10px] font-bold text-mutedgray uppercase tracking-wider mb-2">Deployment Date</label>
+              <input type="date" id="booking-date" class="w-full bg-subcanvas border border-[rgba(0,0,0,0.06)] text-xs rounded-xl p-3 focus:outline-none" required />
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <label class="block text-[10px] font-bold text-mutedgray uppercase tracking-wider mb-2">Preferred Window Slot</label>
+              <select id="booking-time" class="w-full bg-subcanvas border border-[rgba(0,0,0,0.06)] text-xs rounded-xl p-3 focus:outline-none">
+                <option value="Morning">Morning Window (08:00 AM - 12:00 PM)</option>
+                <option value="Afternoon">Afternoon Window (12:00 PM - 04:00 PM)</option>
+                <option value="Evening">Evening Window (04:00 PM - 08:00 PM)</option>
+              </select>
+            </div>
+
+            <div>
+              <label class="block text-[10px] font-bold text-mutedgray uppercase tracking-wider mb-2">Select Primary Service</label>
+              <select id="booking-service-choice" class="w-full bg-subcanvas border border-[rgba(0,0,0,0.06)] text-xs rounded-xl p-3 focus:outline-none">
+                <!-- Injected via javascript -->
+              </select>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <label class="block text-[10px] font-bold text-mutedgray uppercase tracking-wider mb-2">AC Unit Configuration</label>
+              <select id="booking-ac-type" class="w-full bg-subcanvas border border-[rgba(0,0,0,0.06)] text-xs rounded-xl p-3 focus:outline-none">
+                <option value="split">Split AC System</option>
+                <option value="window">Window Unit AC</option>
+                <option value="cassette">Cassette HVAC Unit</option>
+              </select>
+            </div>
+            
+            <div>
+              <label class="block text-[10px] font-bold text-mutedgray uppercase tracking-wider mb-2">Quantity of Units</label>
+              <select id="booking-qty" class="w-full bg-subcanvas border border-[rgba(0,0,0,0.06)] text-xs rounded-xl p-3 focus:outline-none">
+                <option value="1">1 Unit</option>
+                <option value="2">2 Units</option>
+                <option value="3">3 Units</option>
+                <option value="4">4+ Units</option>
+              </select>
+            </div>
+          </div>
+
+          <h3 class="font-bold text-sm text-charcoal uppercase tracking-wider pt-4 pb-2 border-b border-[rgba(0,0,0,0.06)]">2. Client Specifics</h3>
+          
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <label class="block text-[10px] font-bold text-mutedgray uppercase tracking-wider mb-2">Full Client Name</label>
+              <input type="text" id="booking-name" placeholder="Johnathan Doe" class="w-full bg-subcanvas border border-[rgba(0,0,0,0.06)] text-xs rounded-xl p-3 focus:outline-none" />
+            </div>
+
+            <div>
+              <label class="block text-[10px] font-bold text-mutedgray uppercase tracking-wider mb-2">Contact Mobile Number</label>
+              <input type="tel" id="booking-phone" placeholder="+91 99999 99999" class="w-full bg-subcanvas border border-[rgba(0,0,0,0.06)] text-xs rounded-xl p-3 focus:outline-none" />
+            </div>
+          </div>
+
+          <div>
+            <label class="block text-[10px] font-bold text-mutedgray uppercase tracking-wider mb-2">Detailed Deployment Address</label>
+            <textarea id="booking-address" rows="3" placeholder="Building, Block, Area Details..." class="w-full bg-subcanvas border border-[rgba(0,0,0,0.06)] text-xs rounded-xl p-3 focus:outline-none resize-none"></textarea>
+          </div>
+
+          <button onclick="submitBookingForm()" class="w-full bg-charcoal text-white hover:bg-[#222222] transition-colors py-4 rounded-xl text-xs font-bold uppercase tracking-wider">Confirm Booking & Deploy Engineer</button>
+        </div>
+
+        <!-- Right Dashboard Column (Client's Active Booking status list) -->
+        <div class="lg:col-span-5 space-y-6">
+          <div class="bg-subcanvas p-6 rounded-2xl border border-[rgba(0,0,0,0.06)] space-y-4">
+            <div class="flex items-center justify-between border-b border-[rgba(0,0,0,0.06)] pb-2">
+              <h4 class="font-black text-xs text-charcoal uppercase tracking-widest">Active Dispatch Log</h4>
+              <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+            </div>
+            
+            <div id="booking-tab-dashboard" class="space-y-4">
+              <!-- Dynamically populated via javascript scheduler arrays -->
+            </div>
+          </div>
+
+          <div class="p-6 rounded-2xl border border-brandblue/20 bg-brandblue/[0.02] space-y-2">
+            <h5 class="text-xs font-bold text-charcoal uppercase tracking-widest">Priority Dispatch helpline</h5>
+            <p class="text-xs text-mutedgray">Our dedicated executive support center is operating continuously. Dial directly for urgent commercial audits.</p>
+            <div class="flex items-center space-x-2 text-charcoal font-black text-sm pt-2">
+              <i data-lucide="phone-call" class="w-4 h-4 text-brandblue"></i>
+              <span id="dispatch-phone">1800-420-FIXZY</span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- SECTION 4: CART & COMPLETE GST BILLING -->
+    <section id="view-cart" class="fade-view py-16 md:py-24 max-w-7xl mx-auto px-4 md:px-8 space-y-12 hidden">
+      <div class="max-w-3xl space-y-3">
+        <span class="text-[10px] font-black tracking-[0.2em] text-mutedgray uppercase">INVOICE PREVIEW</span>
+        <h2 class="text-3xl md:text-4xl font-black tracking-tight text-charcoal">Selected Configurations</h2>
+        <p class="text-sm text-mutedgray">Symmetric itemized summary with zero-surge and transparent state tariff calculations.</p>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start">
+        
+        <!-- Cart Items dynamic container -->
+        <div class="lg:col-span-7 space-y-6">
+          <div id="cart-items-wrapper" class="space-y-4">
+            <!-- Dynamic Cart Items injected via Script -->
+          </div>
+        </div>
+
+        <!-- Billing summary container -->
+        <div id="billing-summary-block" class="lg:col-span-5 bg-subcanvas p-6 rounded-2xl border border-[rgba(0,0,0,0.06)] space-y-6">
+          <h4 class="text-[10px] font-black tracking-widest text-mutedgray uppercase">Billing Ledger (INR)</h4>
+          
+          <div class="space-y-3 text-xs">
+            <div class="flex justify-between">
+              <span class="text-mutedgray">Items Base Subtotal</span>
+              <span id="invoice-subtotal" class="font-semibold text-charcoal">₹0</span>
+            </div>
+
+            <div id="invoice-discount-row" class="flex justify-between text-emerald-600 font-semibold hidden">
+              <span>Promotional Discount (10%)</span>
+              <span id="invoice-discount">-₹0</span>
+            </div>
+
+            <div class="flex justify-between">
+              <span class="text-mutedgray">Central GST (CGST) @ 9%</span>
+              <span id="invoice-cgst" class="font-medium text-charcoal">₹0</span>
+            </div>
+
+            <div class="flex justify-between">
+              <span class="text-mutedgray">State GST (SGST) @ 9%</span>
+              <span id="invoice-sgst" class="font-medium text-charcoal">₹0</span>
+            </div>
+
+            <div class="flex justify-between">
+              <span class="text-mutedgray">Logistics & Safety Platform Fee</span>
+              <span id="invoice-logistics" class="font-medium text-charcoal">₹99</span>
+            </div>
+
+            <div class="border-t border-[rgba(0,0,0,0.06)] pt-4 flex justify-between text-sm font-black text-charcoal">
+              <span>Grand Total Invoice Value</span>
+              <span id="invoice-grand-total" class="text-base text-brandblue">₹0</span>
+            </div>
+          </div>
+
+          <!-- Promotional voucher area -->
+          <div class="border-t border-[rgba(0,0,0,0.06)] pt-4 space-y-2">
+            <label class="block text-[10px] font-bold text-mutedgray uppercase tracking-wider">Apply Promo Code</label>
+            <div class="flex space-x-2">
+              <input type="text" id="invoice-promo-input" placeholder="Try 'FIXZY10'" class="bg-white border border-[rgba(0,0,0,0.06)] text-xs rounded-xl px-3 py-2 flex-1 uppercase focus:outline-none" />
+              <button onclick="applyInvoicePromo()" class="bg-charcoal text-white text-xs font-bold px-4 py-2 rounded-xl">Apply</button>
+            </div>
+            <div id="promo-status-msg" class="text-[10px] font-bold hidden"></div>
+          </div>
+
+          <button onclick="executeSecureCheckout()" class="w-full bg-charcoal hover:bg-[#222222] text-white transition-colors py-4 rounded-xl text-xs font-bold uppercase tracking-wider">Proceed to Secure OTP Booking</button>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- SECTION 5: CONTACT US -->
+    <section id="view-contact" class="fade-view py-16 md:py-24 max-w-7xl mx-auto px-4 md:px-8 space-y-12 hidden">
+      <div class="max-w-3xl space-y-3">
+        <span class="text-[10px] font-black tracking-[0.2em] text-mutedgray uppercase">GET IN TOUCH</span>
+        <h2 class="text-3xl md:text-4xl font-black tracking-tight text-charcoal">Connect with our Dispatch Office</h2>
+        <p class="text-sm text-mutedgray">Reach our specialized service offices directly. Fully operational support pipelines active in all key metros.</p>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-12">
+        <!-- Message box -->
+        <div class="bg-white p-6 md:p-8 rounded-2xl border border-[rgba(0,0,0,0.06)] space-y-4 shadow-sm">
+          <h3 class="font-bold text-xs text-charcoal uppercase tracking-widest pb-2 border-b border-[rgba(0,0,0,0.06)]">Request Corporate Call-Back</h3>
+          
+          <div class="space-y-4">
+            <div>
+              <label class="block text-[10px] font-bold text-mutedgray uppercase tracking-wider mb-1">Your Full Name</label>
+              <input type="text" id="contact-name" placeholder="Johnathan Doe" class="w-full bg-subcanvas border border-[rgba(0,0,0,0.06)] text-xs rounded-xl p-3 focus:outline-none" />
+            </div>
+
+            <div>
+              <label class="block text-[10px] font-bold text-mutedgray uppercase tracking-wider mb-1">Corporate Email Address</label>
+              <input type="email" id="contact-email" placeholder="john@corporation.com" class="w-full bg-subcanvas border border-[rgba(0,0,0,0.06)] text-xs rounded-xl p-3 focus:outline-none" />
+            </div>
+
+            <div>
+              <label class="block text-[10px] font-bold text-mutedgray uppercase tracking-wider mb-1">Inquiry Specifics</label>
+              <textarea id="contact-message" rows="4" placeholder="Briefly specify details..." class="w-full bg-subcanvas border border-[rgba(0,0,0,0.06)] text-xs rounded-xl p-3 focus:outline-none resize-none"></textarea>
+            </div>
+
+            <button onclick="submitContactMessage()" class="w-full bg-charcoal text-white hover:bg-[#222222] transition-colors py-3 rounded-xl text-xs font-bold uppercase tracking-wider">Submit Inquiry</button>
+          </div>
+        </div>
+
+        <!-- Hub information layout -->
+        <div class="space-y-6">
+          <div class="bg-subcanvas p-6 rounded-2xl border border-[rgba(0,0,0,0.06)] space-y-4">
+            <h4 class="font-bold text-xs text-charcoal uppercase tracking-widest">Regional Hub Coordinates</h4>
+            <div class="space-y-3 text-xs text-mutedgray">
+              <div>
+                <p class="font-bold text-charcoal text-xs">Delhi NCR Central Office</p>
+                <p class="mt-0.5">Plot 140, Chanakyapuri Diplomatic Enclave, New Delhi - 110021</p>
+              </div>
+              <div class="border-t border-[rgba(0,0,0,0.06)] pt-3">
+                <p class="font-bold text-charcoal text-xs">Bangalore Tech Hub Office</p>
+                <p class="mt-0.5">Level 5, Sigma Tech Park, Varthur Main Road, Bangalore - 560066</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="p-6 rounded-2xl border border-[rgba(0,0,0,0.06)] flex items-center space-x-4">
+            <div class="p-3 bg-subcanvas rounded-xl">
+              <i data-lucide="mail" class="w-5 h-5 text-brandblue"></i>
+            </div>
+            <div>
+              <p class="text-[10px] font-bold text-mutedgray uppercase tracking-widest">General Correspondences</p>
+              <p class="text-sm font-bold text-charcoal mt-0.5">support@fixzy.in</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Premium Shortened Footer -->
+  <footer class="bg-charcoal text-white border-t border-white/10">
+    <div class="max-w-7xl mx-auto px-4 md:px-8 py-8 flex flex-col md:flex-row items-center justify-between text-xs text-mutedgray space-y-4 md:space-y-0">
+      
+      <!-- Brand Logo Left -->
+      <div class="flex items-center space-x-2">
+        <span class="text-base font-black tracking-tight text-white">FIXZY</span>
+        <span class="w-1.5 h-1.5 rounded-full bg-brandblue"></span>
+        <span class="text-[10px] border-l border-white/20 pl-2">Pure Airway Engineering</span>
+      </div>
+
+      <!-- Center legal links -->
+      <div class="flex flex-wrap gap-4 justify-center">
+        <a href="#services" onclick="switchView('services')" class="hover:text-white transition-colors">Services</a>
+        <a href="#booking" onclick="switchView('booking')" class="hover:text-white transition-colors">Scheduler</a>
+        <a href="#" class="hover:text-white transition-colors">Privacy Charter</a>
+      </div>
+
+      <!-- Right copyrights -->
+      <div class="flex items-center space-x-1 text-[10px]">
+        <span>© <span id="current-footer-year"></span> Fixzy Technologies. All Rights Reserved.</span>
+      </div>
+
+    </div>
+  </footer>
+
+  <!-- Operational State & JavaScript Mechanics -->
+  <script>
+    // Helper function for reliable Rupees formatting globally
+    function formatRupees(paisaValue) {
+      const rupees = paisaValue / 100;
+      return new Intl.NumberFormat('en-IN', {
+        style: 'currency',
+        currency: 'INR',
+        maximumFractionDigits: 0
+      }).format(rupees);
+    }
+
+    // Pure Single Vertical Service Database
+    const ALL_AC_SERVICES = [
+      {
+        id: "foam-jet-clean",
+        title: "Foam-Jet AC Deep Cleansing",
+        description: "Eco-friendly, chemical jet pressure foaming treatment designed to extract microdust and allergens.",
+        rating: "4.92",
+        reviews: 1420,
+        duration: "90 Mins",
+        basePricePaisa: 149900, // ₹1,499 Base rate in Paisa
+        image: "https://images.unsplash.com/photo-1621905251189-08b45d6a269e?auto=format&fit=crop&q=80&w=800",
+        benefits: ["Coil pressure wash", "Anti-odor bio spray", "Water spray clean sheet protection"]
+      },
+      {
+        id: "gas-refill",
+        title: "Certified AC Gas Recharge",
+        description: "Full gas weight restoration with R32 / R410 green coolant, checking multi-point structural pressure.",
+        rating: "4.87",
+        reviews: 840,
+        duration: "60 Mins",
+        basePricePaisa: 239900, // ₹2,399
+        image: "https://images.unsplash.com/photo-1581094288338-2314dddb7ecc?auto=format&fit=crop&q=80&w=800",
+        benefits: ["Digital vacuum weight test", "Valve micro-acoustic testing", "Vibration assessment"]
+      },
+      {
+        id: "installation-setup",
+        title: "Vibration-Isolated AC Setup",
+        description: "Precision alignment and laser leveling with durable high-grade masonry anchor bolts and pipeline insulation.",
+        rating: "4.95",
+        reviews: 610,
+        duration: "120 Mins",
+        basePricePaisa: 199900, // ₹1,999
+        image: "https://images.unsplash.com/photo-1504307651254-35680f356dfd?auto=format&fit=crop&q=80&w=800",
+        benefits: ["Laser-level alignment bracket", "Vibration isolators included", "Full nitrogen dehydration"]
+      },
+      {
+        id: "electrical-diagnostics",
+        title: "Smart System Electrical Audit",
+        description: "Assessing system electrical currents, motor coil insulation stability, and digital circuit telemetry.",
+        rating: "4.82",
+        reviews: 310,
+        duration: "45 Mins",
+        basePricePaisa: 49900, // ₹499
+        image: "https://images.unsplash.com/photo-1513694203232-719a280e022f?auto=format&fit=crop&q=80&w=800",
+        benefits: ["Airflow anemometer flow check", "Capacitor impedance analysis", "Digital thermal imaging"]
+      }
+    ];
+
+    // AC Type pricing modifications database
+    const AC_TYPES_CONFIG = [
+      { key: "split", label: "Split AC System", premiumPaisa: 30000 }, // +₹300
+      { key: "window", label: "Window Unit AC", premiumPaisa: 0 },     // Base price
+      { key: "cassette", label: "Cassette HVAC Unit", premiumPaisa: 80000 } // +₹800
+    ];
+
+    // Global application State
+    const appState = {
+      city: "Delhi NCR",
+      searchVal: "",
+      cart: [], // Array of structural objects: { serviceId, acTypeKey, quantity, pricePaisa }
+      appliedDiscount: 0, // 0.10 for FIXZY10 promotional voucher
+      profile: {
+        name: "Johnathan Doe",
+        email: "john.doe@icloud.com",
+        phone: "+91 99999 99999",
+        address: "140, Chanakyapuri Diplomatic Enclave, New Delhi - 110021",
+        avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=120"
+      },
+      bookings: [
+        {
+          id: "FZ-829104",
+          serviceName: "Foam-Jet AC Deep Cleansing",
+          acType: "Split AC System",
+          date: "2026-06-20",
+          time: "Morning Window (08:00 AM - 12:00 PM)",
+          status: "Allocated",
+          city: "Delhi NCR",
+          qty: 1
+        }
+      ]
+    };
+
+    // Initialize application parameters
+    window.addEventListener("DOMContentLoaded", () => {
+      // Set footer copyright year
+      document.getElementById("current-footer-year").textContent = new Date().getFullYear();
+
+      // Setup default dates for booking input
+      const dateInput = document.getElementById("booking-date");
+      if (dateInput) {
+        const tomorrow = new Date();
+        tomorrow.setDate(tomorrow.getDate() + 1);
+        dateInput.value = tomorrow.toISOString().split('T')[0];
+        dateInput.min = tomorrow.toISOString().split('T')[0];
+      }
+
+      // Sync Profile UI elements
+      syncProfileUIDisplay();
+
+      // Initial layouts
+      renderServicesGrid();
+      populateBookingSelection();
+      syncCartDisplay();
+      renderActiveBookingsDashboard();
+      
+      if (window.lucide) window.lucide.createIcons();
+    });
+
+    // Navigation routing mechanism between sections
+    function switchView(viewName) {
+      const views = ["home", "services", "booking", "cart", "contact"];
+      
+      views.forEach(v => {
+        const element = document.getElementById(`view-${v}`);
+        if (element) {
+          if (v === viewName) {
+            element.classList.remove("hidden");
+            element.classList.add("animate-fade-in");
+          } else {
+            element.classList.add("hidden");
+            element.classList.remove("animate-fade-in");
+          }
+        }
+
+        // Active state styling on top nav links
+        const navLink = document.getElementById(`nav-${v}`);
+        if (navLink) {
+          if (v === viewName) {
+            navLink.classList.remove("text-mutedgray");
+            navLink.classList.add("text-charcoal", "border-b-2", "border-brandblue");
+          } else {
+            navLink.classList.add("text-mutedgray");
+            navLink.classList.remove("text-charcoal", "border-b-2", "border-brandblue");
+          }
+        }
+      });
+
+      // Smooth scroll to top of page when changing page views
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    // Scroll to specific section easily (e.g. About section)
+    function scrollSection(elementId) {
+      const element = document.getElementById(elementId);
+      if (element) {
+        element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    }
+
+    // Toggle Universal Left Navigation Drawer (Slide-out)
+    function toggleLeftDrawer(forceClose = false) {
+      const drawer = document.getElementById("left-drawer");
+      const backdrop = document.getElementById("left-drawer-backdrop");
+      const burger = document.getElementById("burger-icon");
+
+      if (!drawer) return;
+
+      const isOpen = drawer.classList.contains("translate-x-0");
+      if (isOpen || forceClose) {
+        drawer.classList.remove("translate-x-0");
+        drawer.classList.add("-translate-x-full");
+        backdrop.classList.add("hidden");
+        if (burger) burger.setAttribute("data-lucide", "menu");
+      } else {
+        drawer.classList.remove("-translate-x-full");
+        drawer.classList.add("translate-x-0");
+        backdrop.classList.remove("hidden");
+        if (burger) burger.setAttribute("data-lucide", "x");
+      }
+      if (window.lucide) window.lucide.createIcons();
+    }
+
+    // PROFILE HUB ACTIONS
+    function toggleProfileDrawer() {
+      const drawer = document.getElementById("profile-drawer");
+      const backdrop = document.getElementById("profile-drawer-backdrop");
+
+      const isOpen = drawer.classList.contains("translate-x-0");
+      if (isOpen) {
+        drawer.classList.remove("translate-x-0");
+        drawer.classList.add("translate-x-full");
+        backdrop.classList.add("hidden");
+      } else {
+        drawer.classList.remove("translate-x-full");
+        drawer.classList.add("translate-x-0");
+        backdrop.classList.remove("hidden");
+        
+        // Sync inputs with profile state on open
+        document.getElementById("profile-input-name").value = appState.profile.name;
+        document.getElementById("profile-input-email").value = appState.profile.email;
+        document.getElementById("profile-input-phone").value = appState.profile.phone;
+        document.getElementById("profile-input-address").value = appState.profile.address;
+      }
+    }
+
+    // Handle interactive custom profile photo selector
+    function handleAvatarUpload(event) {
+      const file = event.target.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          appState.profile.avatar = e.target.result;
+          syncProfileUIDisplay();
+          showToast("Profile image successfully configured!");
+        }
+        reader.readAsDataURL(file);
+      }
+    }
+
+    function syncProfileFromInputs() {
+      appState.profile.name = document.getElementById("profile-input-name").value;
+      appState.profile.email = document.getElementById("profile-input-email").value;
+      appState.profile.phone = document.getElementById("profile-input-phone").value;
+      appState.profile.address = document.getElementById("profile-input-address").value;
+    }
+
+    function saveProfileChanges() {
+      syncProfileFromInputs();
+      syncProfileUIDisplay();
+      showToast("Profile credentials synchronized.");
+      toggleProfileDrawer();
+    }
+
+    function syncProfileUIDisplay() {
+      document.getElementById("header-profile-pic").src = appState.profile.avatar;
+      document.getElementById("drawer-avatar-preview").src = appState.profile.avatar;
+      document.getElementById("drawer-user-name").textContent = appState.profile.name;
+      document.getElementById("drawer-user-email").textContent = appState.profile.email;
+
+      // Sync Booking page fields for user convenience
+      const bName = document.getElementById("booking-name");
+      const bPhone = document.getElementById("booking-phone");
+      const bAddress = document.getElementById("booking-address");
+      if (bName) bName.value = appState.profile.name;
+      if (bPhone) bPhone.value = appState.profile.phone;
+      if (bAddress) bAddress.value = appState.profile.address;
+    }
+
+    // Toggle location selection coordinates dropdown
+    function toggleCityDropdown() {
+      const dropdown = document.getElementById("city-dropdown");
+      dropdown.classList.toggle("hidden");
+    }
+
+    // City selection synchronizers
+    function selectCity(cityName) {
+      appState.city = cityName;
+
+      // Close open dropdowns
+      document.getElementById("city-dropdown").classList.add("hidden");
+
+      // Synced text classes
+      document.querySelectorAll(".current-city-text").forEach(el => {
+        el.textContent = cityName;
+      });
+      document.getElementById("current-location-label").textContent = cityName;
+
+      // Update hero toggles styling matching selected zone
+      const slider = document.getElementById("slider-back");
+      const toggleDelhi = document.getElementById("hero-toggle-delhi");
+      const toggleBlr = document.getElementById("hero-toggle-blr");
+
+      if (cityName === "Delhi NCR") {
+        if (slider) slider.style.transform = "translateX(0%)";
+        if (toggleDelhi) toggleDelhi.className = "relative z-10 w-1/2 text-center text-xs font-bold uppercase tracking-wider rounded-full transition-all duration-300 py-1.5 text-charcoal";
+        if (toggleBlr) toggleBlr.className = "relative z-10 w-1/2 text-center text-xs font-bold uppercase tracking-wider rounded-full transition-all duration-300 py-1.5 text-mutedgray";
+        document.getElementById("dispatch-phone").textContent = "1800-420-FIXZY";
+      } else {
+        if (slider) slider.style.transform = "translateX(100%)";
+        if (toggleDelhi) toggleDelhi.className = "relative z-10 w-1/2 text-center text-xs font-bold uppercase tracking-wider rounded-full transition-all duration-300 py-1.5 text-mutedgray";
+        if (toggleBlr) toggleBlr.className = "relative z-10 w-1/2 text-center text-xs font-bold uppercase tracking-wider rounded-full transition-all duration-300 py-1.5 text-charcoal";
+        document.getElementById("dispatch-phone").textContent = "1800-500-BLR-FIXZY";
+      }
+
+      // Sync selector option inside secure booking scheduler
+      const bCity = document.getElementById("booking-city");
+      if (bCity) bCity.value = cityName;
+
+      showToast(`Operational coordinate calibrated to: ${cityName}`);
+      renderServicesGrid();
+    }
+
+    function syncBookingCity(val) {
+      selectCity(val);
+    }
+
+    // Realtime Service Search Filters
+    function handleSearch(term) {
+      appState.searchVal = term;
+      
+      // Update across inputs
+      document.getElementById("desktop-search-input").value = term;
+
+      const banner = document.getElementById("search-status-banner");
+      if (term.trim() !== "") {
+        banner.classList.remove("hidden");
+      } else {
+        banner.classList.add("hidden");
+      }
+
+      // Auto-nav to services tab to instantly visualize queries
+      switchView("services");
+      renderServicesGrid();
+    }
+
+    function clearSearch() {
+      handleSearch("");
+    }
+
+    // Keyboard support: CMD + K focusing search
+    document.addEventListener("keydown", (e) => {
+      if ((e.metaKey || e.ctrlKey) && e.key === "k") {
+        e.preventDefault();
+        const deskSearch = document.getElementById("desktop-search-input");
+        if (deskSearch) {
+          deskSearch.focus();
+          deskSearch.select();
+        }
+      }
+    });
+
+    // Dynamic Services rendering featuring AC Option Toggles
+    function renderServicesGrid() {
+      const container = document.getElementById("service-items-grid");
+      
+      const filtered = ALL_AC_SERVICES.filter(service => 
+        service.title.toLowerCase().includes(appState.searchVal.toLowerCase()) ||
+        service.description.toLowerCase().includes(appState.searchVal.toLowerCase())
+      );
+
+      if (filtered.length === 0) {
+        container.innerHTML = `
+          <div class="col-span-full text-center py-12 bg-subcanvas rounded-2xl border border-[rgba(0,0,0,0.06)] space-y-4">
+            <p class="text-xs text-mutedgray">No certified services matching "${appState.searchVal}" found.</p>
+            <button onclick="clearSearch()" class="bg-charcoal text-white text-xs font-bold px-4 py-2 rounded-xl">Clear Filters</button>
+          </div>
+        `;
+        return;
+      }
+
+      container.innerHTML = filtered.map(service => {
+        // Generate AC types selection block
+        const acTypeOptionsHTML = AC_TYPES_CONFIG.map(acType => {
+          const servicePrice = service.basePricePaisa + acType.premiumPaisa;
+          const displayPrice = formatRupees(servicePrice);
+          return `
+            <label class="flex items-center justify-between p-2.5 rounded-lg border border-[rgba(0,0,0,0.06)] hover:bg-subcanvas transition-colors cursor-pointer text-xs">
+              <div class="flex items-center space-x-2">
+                <input type="radio" name="actype-${service.id}" value="${acType.key}" ${acType.key === 'split' ? 'checked' : ''} class="text-brandblue focus:ring-brandblue">
+                <span class="font-bold text-charcoal">${acType.label}</span>
+              </div>
+              <span class="text-mutedgray font-semibold">${displayPrice}</span>
+            </label>
+          `;
+        }).join('');
+
+        return `
+          <div class="bg-white rounded-2xl overflow-hidden premium-card-lift border border-[rgba(0,0,0,0.06)] flex flex-col justify-between">
+            <!-- Space for elegant placeholder images -->
+            <div class="relative aspect-[16/10] bg-subcanvas overflow-hidden">
+              <img 
+                src="${service.image}" 
+                alt="${service.title}" 
+                class="w-full h-full object-cover transition-transform duration-700 hover:scale-[1.04]"
+                onerror="this.src='https://images.unsplash.com/photo-1621905251189-08b45d6a269e?auto=format&fit=crop&q=80&w=800'"
+              />
+              <span class="absolute top-4 left-4 bg-white/90 backdrop-blur text-charcoal text-[9px] font-black tracking-widest uppercase px-2.5 py-1 rounded-full shadow-sm border border-brandblue/10">
+                Certified HVAC
+              </span>
+            </div>
+
+            <!-- Content Panel -->
+            <div class="p-6 space-y-5 flex-1 flex flex-col justify-between">
+              <div class="space-y-2">
+                <div class="flex items-center justify-between text-xs text-mutedgray">
+                  <span class="flex items-center font-bold text-brandblue">
+                    <i data-lucide="star" class="w-3.5 h-3.5 text-brandblue fill-current mr-1"></i>
+                    ${service.rating} <span class="text-[10px] text-mutedgray font-normal ml-0.5">(${service.reviews})</span>
+                  </span>
+                  <span class="flex items-center">
+                    <i data-lucide="clock" class="w-3.5 h-3.5 mr-1 text-mutedgray"></i>
+                    ${service.duration}
+                  </span>
+                </div>
+
+                <h3 class="font-black text-lg text-charcoal tracking-tight">${service.title}</h3>
+                <p class="text-xs text-mutedgray leading-relaxed">${service.description}</p>
+              </div>
+
+              <!-- Interactive selector for AC types showing options clearly -->
+              <div class="space-y-2">
+                <p class="text-[9px] font-black text-mutedgray uppercase tracking-widest">Configure AC System Type</p>
+                <div class="space-y-1.5">
+                  ${acTypeOptionsHTML}
+                </div>
+              </div>
+
+              <!-- Action footer -->
+              <div class="pt-4 border-t border-[rgba(0,0,0,0.06)] flex items-center justify-between mt-auto">
+                <span class="text-xs font-black text-charcoal">From ${formatRupees(service.basePricePaisa)}</span>
+                
+                <div class="flex space-x-2">
+                  <button onclick="handleAddToCart('${service.id}')" class="bg-charcoal text-white hover:bg-[#222222] transition-colors text-xs font-bold px-4 py-2 rounded-xl">
+                    Add to Cart
+                  </button>
+                  <button onclick="handleInstantBooking('${service.id}')" class="border border-[rgba(0,0,0,0.08)] hover:bg-subcanvas text-charcoal transition-colors text-xs font-bold px-4 py-2 rounded-xl">
+                    Book Now
+                  </button>
+                </div>
+              </div>
+
+            </div>
+          </div>
+        `;
+      }).join('');
+
+      if (window.lucide) window.lucide.createIcons();
+    }
+
+    // Add custom structural item directly inside array list
+    function handleAddToCart(serviceId) {
+      const radioBtn = document.querySelector(`input[name="actype-${serviceId}"]:checked`);
+      const selectedAcType = radioBtn ? radioBtn.value : 'split';
+      const service = ALL_AC_SERVICES.find(s => s.id === serviceId);
+      const acConfig = AC_TYPES_CONFIG.find(a => a.key === selectedAcType);
+
+      const computedPrice = service.basePricePaisa + acConfig.premiumPaisa;
+
+      // Check if similar coordinate already matches
+      const existing = appState.cart.find(item => item.serviceId === serviceId && item.acTypeKey === selectedAcType);
+      
+      if (existing) {
+        existing.quantity += 1;
+      } else {
+        appState.cart.push({
+          serviceId: serviceId,
+          acTypeKey: selectedAcType,
+          quantity: 1,
+          pricePaisa: computedPrice
+        });
+      }
+
+      showToast(`Successfully selected ${service.title} (${acConfig.label})`);
+      syncCartDisplay();
+    }
+
+    function handleInstantBooking(serviceId) {
+      // Add standard items first, then transition directly into secure scheduler
+      handleAddToCart(serviceId);
+      switchView("booking");
+
+      // Auto-focus service choice dropdown
+      const dropdown = document.getElementById("booking-service-choice");
+      if (dropdown) dropdown.value = serviceId;
+    }
+
+    // Syncing and re-calculating billing ledger
+    function syncCartDisplay() {
+      const counter = document.getElementById("cart-counter-badge");
+      const totalQty = appState.cart.reduce((sum, item) => sum + item.quantity, 0);
+
+      if (totalQty > 0) {
+        counter.textContent = totalQty;
+        counter.classList.remove("hidden");
+      } else {
+        counter.classList.add("hidden");
+      }
+
+      // Populate Cart lists
+      const cartItemsWrapper = document.getElementById("cart-items-wrapper");
+
+      if (totalQty === 0) {
+        cartItemsWrapper.innerHTML = `
+          <div class="text-center py-12 bg-subcanvas rounded-2xl border border-[rgba(0,0,0,0.06)] space-y-4">
+            <div class="w-12 h-12 bg-white rounded-full flex items-center justify-center mx-auto text-mutedgray border border-[rgba(0,0,0,0.06)]">
+              <i data-lucide="shopping-bag" class="w-6 h-6 text-brandblue"></i>
+            </div>
+            <p class="text-xs text-mutedgray">Your Cart ledger is completely empty. Browse catalog to add certified services.</p>
+            <button onclick="switchView('services')" class="bg-charcoal text-white text-xs font-bold px-5 py-2.5 rounded-xl uppercase tracking-wider">Explore Services</button>
+          </div>
+        `;
+        document.getElementById("billing-summary-block").classList.add("opacity-50", "pointer-events-none");
+        updateBillingLedger(0);
+        return;
+      }
+
+      document.getElementById("billing-summary-block").classList.remove("opacity-50", "pointer-events-none");
+
+      // Loop through and map items
+      cartItemsWrapper.innerHTML = appState.cart.map((item, index) => {
+        const service = ALL_AC_SERVICES.find(s => s.id === item.serviceId);
+        const acConfig = AC_TYPES_CONFIG.find(a => a.key === item.acTypeKey);
+        
+        return `
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between p-4 bg-white rounded-2xl border border-[rgba(0,0,0,0.06)] gap-4 animate-scale-up">
+            <div class="flex items-start space-x-4">
+              <div class="w-12 h-12 bg-subcanvas rounded-lg overflow-hidden flex-shrink-0">
+                <img src="${service.image}" alt="${service.title}" class="w-full h-full object-cover" />
+              </div>
+              <div>
+                <h4 class="text-xs font-black text-charcoal tracking-tight">${service.title}</h4>
+                <p class="text-[10px] text-mutedgray mt-0.5">${acConfig.label}</p>
+                <span class="text-[10px] font-bold text-brandblue block mt-1">${formatRupees(item.pricePaisa)} per unit</span>
+              </div>
+            </div>
+
+            <!-- Quantity adjustment mechanics -->
+            <div class="flex items-center justify-between sm:justify-end space-x-6">
+              <div class="flex items-center bg-subcanvas rounded-lg overflow-hidden border border-[rgba(0,0,0,0.06)] scale-90">
+                <button onclick="adjustCartQty(${index}, -1)" class="px-2.5 py-1.5 hover:bg-[#E2E3E5] text-charcoal font-black text-xs">-</button>
+                <span class="px-2.5 font-bold text-xs text-charcoal">${item.quantity}</span>
+                <button onclick="adjustCartQty(${index}, 1)" class="px-2.5 py-1.5 hover:bg-[#E2E3E5] text-charcoal font-black text-xs">+</button>
+              </div>
+
+              <div class="text-right">
+                <span class="text-xs font-black text-charcoal block">${formatRupees(item.pricePaisa * item.quantity)}</span>
+                <button onclick="removeItemFromCart(${index})" class="text-[10px] text-red-500 hover:underline mt-0.5">Remove</button>
+              </div>
+            </div>
+          </div>
+        `;
+      }).join('');
+
+      // Math computations (Paisa-based)
+      const subtotalPaisa = appState.cart.reduce((sum, item) => sum + (item.pricePaisa * item.quantity), 0);
+      updateBillingLedger(subtotalPaisa);
+
+      if (window.lucide) window.lucide.createIcons();
+    }
+
+    // Adjusting item details inside arrays
+    function adjustCartQty(index, offset) {
+      appState.cart[index].quantity += offset;
+      if (appState.cart[index].quantity <= 0) {
+        appState.cart.splice(index, 1);
+      }
+      syncCartDisplay();
+    }
+
+    function removeItemFromCart(index) {
+      appState.cart.splice(index, 1);
+      syncCartDisplay();
+      showToast("Removed package coordinates from reservation list.");
+    }
+
+    // Integer-based billing calculations (Paisa to Rupees conversions)
+    function updateBillingLedger(subtotalPaisa) {
+      const discountPaisa = Math.round(subtotalPaisa * appState.appliedDiscount);
+      const taxableAmountPaisa = Math.max(0, subtotalPaisa - discountPaisa);
+      
+      const cgstPaisa = Math.round(taxableAmountPaisa * 0.09); // Central GST @ 9%
+      const sgstPaisa = Math.round(taxableAmountPaisa * 0.09); // State GST @ 9%
+      
+      // Platform logistics flat safety fee of ₹99 (9900 Paisa), active only if subtotal exists
+      const logisticsFeePaisa = subtotalPaisa > 0 ? 9900 : 0;
+      const totalAmountPaisa = taxableAmountPaisa + cgstPaisa + sgstPaisa + logisticsFeePaisa;
+
+      // Update UI elements
+      document.getElementById("invoice-subtotal").textContent = formatRupees(subtotalPaisa);
+      
+      const discRow = document.getElementById("invoice-discount-row");
+      if (appState.appliedDiscount > 0) {
+        discRow.classList.remove("hidden");
+        document.getElementById("invoice-discount").textContent = `-${formatRupees(discountPaisa)}`;
+      } else {
+        discRow.classList.add("hidden");
+      }
+
+      document.getElementById("invoice-cgst").textContent = formatRupees(cgstPaisa);
+      document.getElementById("invoice-sgst").textContent = formatRupees(sgstPaisa);
+      document.getElementById("invoice-logistics").textContent = formatRupees(logisticsFeePaisa);
+      document.getElementById("invoice-grand-total").textContent = formatRupees(totalAmountPaisa);
+    }
+
+    // Promo code voucher handler
+    function applyInvoicePromo() {
+      const input = document.getElementById("invoice-promo-input").value.trim().toUpperCase();
+      const status = document.getElementById("promo-status-msg");
+
+      status.classList.remove("hidden");
+      if (input === "FIXZY10") {
+        appState.appliedDiscount = 0.10; // 10%
+        status.className = "text-[10px] font-black text-emerald-600 mt-1";
+        status.textContent = "Campaign code applied! 10% structural invoice reduction configured.";
+        showToast("Campaign code 'FIXZY10' applied successfully.");
+      } else {
+        status.className = "text-[10px] font-black text-red-500 mt-1";
+        status.textContent = "Promotional code details not recognized.";
+      }
+      syncCartDisplay();
+    }
+
+    function executeSecureCheckout() {
+      if (appState.cart.length === 0) {
+        showToast("Cannot proceed. Cart ledger contains zero items.", "error");
+        return;
+      }
+      
+      // Complete secure checkout simulation by scheduling real active booking objects
+      appState.cart.forEach(cartItem => {
+        const service = ALL_AC_SERVICES.find(s => s.id === cartItem.serviceId);
+        const acConfig = AC_TYPES_CONFIG.find(a => a.key === cartItem.acTypeKey);
+        
+        appState.bookings.push({
+          id: `FZ-${Math.floor(100000 + Math.random() * 900000)}`,
+          serviceName: service.title,
+          acType: acConfig.label,
+          date: new Date().toISOString().split('T')[0],
+          time: "Immediate Dispatch Option Selected",
+          status: "Scheduled",
+          city: appState.city,
+          qty: cartItem.quantity
+        });
+      });
+
+      const invoiceId = Math.floor(100000 + Math.random() * 900000);
+      showToast(`Order Registered successfully! Added to your Active Deployments.`, "success");
+      
+      // Complete state wipe out
+      appState.cart = [];
+      appState.appliedDiscount = 0;
+      document.getElementById("invoice-promo-input").value = "";
+      document.getElementById("promo-status-msg").classList.add("hidden");
+      
+      syncCartDisplay();
+      renderActiveBookingsDashboard();
+      switchView("booking");
+    }
+
+    // Secure calendar scheduling choices
+    function populateBookingSelection() {
+      const choiceDropdown = document.getElementById("booking-service-choice");
+      if (!choiceDropdown) return;
+
+      choiceDropdown.innerHTML = ALL_AC_SERVICES.map(service => 
+        `<option value="${service.id}">${service.title}</option>`
+      ).join('');
+    }
+
+    // RENDER THE INTEGRATED APP BOOKINGS & USER DISPATCH SCHEDULES
+    function renderActiveBookingsDashboard() {
+      const container = document.getElementById("booking-tab-dashboard");
+      const listInDrawer = document.getElementById("profile-bookings-list");
+      
+      if (!container) return;
+
+      if (appState.bookings.length === 0) {
+        const emptyHTML = `
+          <div class="text-center py-6 bg-white rounded-xl border border-[rgba(0,0,0,0.06)] space-y-2">
+            <p class="text-xs text-mutedgray">No scheduled allocations discovered.</p>
+            <p class="text-[10px] text-mutedgray">Schedule your custom thermodynamic audit inside the scheduling panel.</p>
+          </div>
+        `;
+        container.innerHTML = emptyHTML;
+        if (listInDrawer) listInDrawer.innerHTML = emptyHTML;
+        return;
+      }
+
+      const activeLogsHTML = appState.bookings.map(book => {
+        // Build progressive status coloring
+        let statusBadgeColor = "bg-iceblue text-brandblue";
+        if (book.status === "Allocated") statusBadgeColor = "bg-amber-100 text-amber-800";
+        if (book.status === "Technician In Route") statusBadgeColor = "bg-blue-100 text-blue-800";
+        if (book.status === "Complete") statusBadgeColor = "bg-emerald-100 text-emerald-800";
+
+        return `
+          <div class="bg-white p-4 rounded-xl border border-[rgba(0,0,0,0.06)] space-y-3 animate-scale-up">
+            <div class="flex items-center justify-between">
+              <span class="text-[10px] font-black text-charcoal tracking-wider">${book.id}</span>
+              <span class="text-[9px] font-bold px-2 py-0.5 rounded ${statusBadgeColor}">${book.status}</span>
+            </div>
+            
+            <div class="space-y-1.5">
+              <h5 class="text-xs font-black text-charcoal tracking-tight">${book.serviceName}</h5>
+              <div class="flex justify-between text-[10px] text-mutedgray">
+                <span>System: ${book.acType}</span>
+                <span>Qty: ${book.qty}</span>
+              </div>
+              <div class="flex items-center text-[10px] text-mutedgray space-x-1.5 pt-1">
+                <i data-lucide="calendar" class="w-3 h-3 text-brandblue"></i>
+                <span>${book.date}</span>
+                <span class="text-charcoal/20">|</span>
+                <span>${book.time}</span>
+              </div>
+              <div class="flex items-center text-[10px] text-mutedgray space-x-1 pt-0.5">
+                <i data-lucide="map-pin" class="w-3 h-3 text-brandblue"></i>
+                <span>Hub Location: ${book.city}</span>
+              </div>
+            </div>
+          </div>
+        `;
+      }).join('');
+
+      container.innerHTML = activeLogsHTML;
+      if (listInDrawer) listInDrawer.innerHTML = activeLogsHTML;
+
+      if (window.lucide) window.lucide.createIcons();
+    }
+
+    function submitBookingForm() {
+      const name = document.getElementById("booking-name").value.trim();
+      const phone = document.getElementById("booking-phone").value.trim();
+      const address = document.getElementById("booking-address").value.trim();
+      const bDate = document.getElementById("booking-date").value;
+      const bTime = document.getElementById("booking-time").value;
+      const serviceId = document.getElementById("booking-service-choice").value;
+      const acTypeKey = document.getElementById("booking-ac-type").value;
+      const qtyVal = parseInt(document.getElementById("booking-qty").value, 10) || 1;
+
+      if (!name || !phone || !address || !bDate) {
+        showToast("Kindly specify all parameters to align coordinates.", "error");
+        return;
+      }
+
+      const service = ALL_AC_SERVICES.find(s => s.id === serviceId);
+      const acConfig = AC_TYPES_CONFIG.find(a => a.key === acTypeKey);
+
+      // Create booking payload
+      const orderRef = Math.floor(100000 + Math.random() * 900000);
+      const newBooking = {
+        id: `FZ-${orderRef}`,
+        serviceName: service.title,
+        acType: acConfig.label,
+        date: bDate,
+        time: bTime,
+        status: "Allocated",
+        city: appState.city,
+        qty: qtyVal
+      };
+
+      appState.bookings.push(newBooking);
+      showToast(`Schedule Confirmed! ID: FZ-${orderRef}. Professional engineer allocated.`);
+      
+      // Update appointments display
+      renderActiveBookingsDashboard();
+      
+      // Reset inputs to default sync
+      syncProfileUIDisplay();
+    }
+
+    function submitContactMessage() {
+      const name = document.getElementById("contact-name").value.trim();
+      const email = document.getElementById("contact-email").value.trim();
+      const message = document.getElementById("contact-message").value.trim();
+
+      if (!name || !email || !message) {
+        showToast("Please input contact information before submit.", "error");
+        return;
+      }
+
+      showToast("Thank you. Inquiry registered. Dispatch advisor is dialing.");
+      document.getElementById("contact-name").value = "";
+      document.getElementById("contact-email").value = "";
+      document.getElementById("contact-message").value = "";
+    }
+
+    function showToast(message) {
+      const wrapper = document.getElementById("toast-wrapper");
+      const text = document.getElementById("toast-text");
+      text.textContent = message;
+      wrapper.classList.remove("hidden");
+      setTimeout(() => {
+        dismissToast();
+      }, 4000);
+    }
+
+    function dismissToast() {
+      document.getElementById("toast-wrapper").classList.add("hidden");
+    }
+  </script>
+</body>
+</html>
